@@ -481,7 +481,7 @@
             if (!userId) return;
             setsContainer.innerHTML = '';
             setsContainer.appendChild(createSetInput());
-            setupEventListeners();
+            setupAppEventListeners();
             initCalendar();
             
             // Listen to all data changes
@@ -494,11 +494,9 @@
                 updateCalendar(workoutDocs);
                 updateDashboardAndAchievements();
                 populateExerciseDropdownAndTags(workoutDocs);
-                // Pass the already-fetched docs to prevent another DB call
                 populateChartDropdown(workoutDocs); 
             });
 
-            // This listener is just to update achievements if body measurements change some stat (not currently used but good practice)
             const unsubMeasurements = onSnapshot(measurementQuery, () => {
                 updateDashboardAndAchievements();
             });
@@ -506,7 +504,6 @@
             
             unsubscribes.push(unsubWorkouts, unsubMeasurements, unsubAchievements);
             
-            // Initial Load
             updateDashboardAndAchievements();
         }
         
@@ -522,11 +519,14 @@
             if (calendar) calendar.removeAllEvents();
             if (progressChart) progressChart.destroy();
         }
-
+        
         // --- Event Listeners Setup ---
-        function setupEventListeners() {
+        function setupAuthEventListeners() {
             loginForm.onsubmit = handleAuthFormSubmit;
             document.getElementById('show-register-btn').onclick = toggleAuthMode;
+        }
+
+        function setupAppEventListeners() {
             logoutBtn.onclick = () => signOut(auth);
             
             tabs.forEach(tab => {
@@ -544,7 +544,6 @@
                     document.getElementById(viewId).classList.remove('hidden');
 
                     if(viewId === 'view-log' && calendar) {
-                        // FIX: Re-render calendar when its tab is shown
                         setTimeout(() => calendar.render(), 10);
                     }
                 };
@@ -567,6 +566,7 @@
             chatForm.onsubmit = handleChatSubmit;
         }
         
+        setupAuthEventListeners();
         
         // --- Dashboard, Streak & Achievements Logic ---
         async function calculateUserStats() {
@@ -576,40 +576,36 @@
             const snapshot = await getDocs(workoutQuery);
             const workouts = snapshot.docs;
 
-            // Total Workouts
             const totalWorkouts = workouts.length;
-
-            // Total Weight
             const totalWeightLifted = workouts.reduce((sum, doc) => {
                 const weights = doc.data().weights || [];
                 return sum + weights.reduce((s, w) => s + w, 0);
             }, 0);
 
-            // Streak
             if (workouts.length === 0) return { streak: 0, totalWorkouts, totalWeightLifted };
+
             const workoutDates = [...new Set(workouts.map(doc => doc.data().date))].sort().reverse();
-            let streak = 0;
+            
             let currentDate = new Date();
             currentDate.setHours(0, 0, 0, 0);
             
             const lastWorkoutDate = new Date(workoutDates[0] + "T00:00:00");
-            const diffDays = (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24);
-            
-            if (diffDays > 1) {
-                 return { streak: 0, totalWorkouts, totalWeightLifted };
+            const diffFromToday = (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24);
+
+            if (diffFromToday > 1 && !(currentDate.getDay() === 1 && diffFromToday === 2)) {
+                return { streak: 0, totalWorkouts, totalWeightLifted };
             }
-            
-            streak = 1;
+
+            let streak = 1;
             let iterDate = new Date(lastWorkoutDate);
 
             for (let i = 1; i < workoutDates.length; i++) {
                 const nextDate = new Date(workoutDates[i] + "T00:00:00");
-                
                 const dayDiff = (iterDate - nextDate) / (1000 * 60 * 60 * 24);
 
                 if (dayDiff === 1) {
                     streak++;
-                } else if (dayDiff === 2 && iterDate.getDay() === 1) { // 1 is Monday, gap is Sat -> Mon
+                } else if (dayDiff === 2 && iterDate.getDay() === 1) { 
                     streak++;
                 } else {
                     break;
@@ -941,9 +937,8 @@
             });
         }
         
-        // FIX: The function is now only called once by the workout listener, preventing duplicates.
         async function populateChartDropdown(workoutDocs) {
-            if (!userId) return;
+            if (!userId || !workoutDocs) return;
             const currentSelection = chartSelect.value;
             chartSelect.innerHTML = '<option value="">Choose data...</option>';
             
