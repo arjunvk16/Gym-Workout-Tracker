@@ -183,8 +183,51 @@
     </div>
 
     <!-- Modals (Edit, Message, Confirm) -->
-    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">...</div>
-    <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 hidden z-50">...</div>
+    <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Edit Workout</h3>
+                <div class="mt-2 px-7 py-3">
+                    <form id="edit-workout-form" class="space-y-4 text-left">
+                        <input type="hidden" id="edit-doc-id">
+                        <div>
+                           <label for="edit-exercise-name" class="block text-sm font-medium text-slate-600">Exercise Name</label>
+                            <input type="text" id="edit-exercise-name" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-slate-300 rounded-md" readonly>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600">Sets & Weight (kg)</label>
+                            <div id="edit-sets-container" class="space-y-2 mt-1">
+                                <!-- Dynamic sets for editing will be added here -->
+                            </div>
+                            <button type="button" id="edit-add-set-btn" class="mt-2 text-sm text-blue-600 hover:underline focus:outline-none">
+                                + Add Set
+                            </button>
+                        </div>
+                         <div>
+                            <label for="edit-workout-date" class="block text-sm font-medium text-slate-600">Date</label>
+                            <input type="date" id="edit-workout-date" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="items-center px-4 py-3 gap-2 flex justify-end">
+                    <button id="delete-workout-btn" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-300">
+                        Delete
+                    </button>
+                    <button id="update-workout-btn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Save Changes
+                    </button>
+                     <button id="close-modal-btn" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-auto hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-auto">
+            <p id="message-text" class="text-center text-lg"></p>
+        </div>
+    </div>
     <div id="confirm-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-auto">
             <p id="confirm-text" class="text-center text-lg mb-4"></p>
@@ -455,11 +498,48 @@
         }
         
         function handleEventClick(info) {
-             // Code to populate and show edit-modal
+             const data = info.event.extendedProps;
+            editModal.querySelector('#modal-title').textContent = `Edit: ${data.exercise}`;
+            editModal.querySelector('#edit-doc-id').value = info.event.id;
+            editModal.querySelector('#edit-exercise-name').value = data.exercise;
+            editModal.querySelector('#edit-workout-date').value = data.date;
+
+            const editSetsContainer = document.getElementById('edit-sets-container');
+            editSetsContainer.innerHTML = '';
+            if (Array.isArray(data.weights) && data.weights.length > 0) {
+                data.weights.forEach(weight => editSetsContainer.appendChild(createSetInput(weight)));
+            } else if (data.weight) { // For backward compatibility
+                editSetsContainer.appendChild(createSetInput(data.weight));
+            } else {
+                editSetsContainer.appendChild(createSetInput());
+            }
+
+            editModal.classList.remove('hidden');
         }
         
         async function handleUpdateWorkout() {
-            // Code to update workout
+            const docId = editModal.querySelector('#edit-doc-id').value;
+            const editSetsContainer = document.getElementById('edit-sets-container');
+            const weightInputs = editSetsContainer.querySelectorAll('.set-weight-input');
+            const weights = Array.from(weightInputs)
+                                 .map(input => parseFloat(input.value))
+                                 .filter(w => !isNaN(w) && w > 0);
+            const date = editModal.querySelector('#edit-workout-date').value;
+            
+            if (!docId || weights.length === 0 || !date) {
+                showMessage("Invalid data. Please check all fields.", true);
+                return;
+            }
+            
+            try {
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/workouts`, docId);
+                await updateDoc(docRef, { weights, date });
+                showMessage("Workout updated successfully!");
+                editModal.classList.add('hidden');
+            } catch (error) {
+                console.error("Error updating workout: ", error);
+                showMessage("Failed to update workout.", true);
+            }
         }
 
         async function handleDeleteWorkout() {
@@ -488,7 +568,15 @@
         }
         
         function populateExerciseDropdown(exercises) {
-            // code to populate exercise dropdown
+            const currentSelection = exerciseSelect.value;
+            exerciseSelect.innerHTML = '<option value="">Select an exercise</option>'; // Keep the placeholder
+            exercises.forEach(ex => {
+                const optionEl = document.createElement('option');
+                optionEl.value = ex;
+                optionEl.textContent = ex;
+                exerciseSelect.appendChild(optionEl);
+            });
+            exerciseSelect.value = currentSelection;
         }
         
         function loadDataAndPopulateDropdown() {
@@ -499,19 +587,124 @@
         }
 
         async function populateChartDropdown() {
-            // code to populate chart dropdown
+            const currentSelection = chartSelect.value;
+            chartSelect.innerHTML = '<option value="">Choose data...</option>';
+            
+            const measurementGroup = document.createElement('optgroup');
+            measurementGroup.label = "Body Measurements";
+            ['Weight', 'Chest', 'Biceps', 'Stomach'].forEach(opt => {
+                const optionEl = document.createElement('option');
+                optionEl.value = `measurement_${opt.toLowerCase()}`;
+                optionEl.textContent = opt;
+                measurementGroup.appendChild(optionEl);
+            });
+            chartSelect.appendChild(measurementGroup);
+            
+            if (!userId) return;
+            const workoutSnapshot = await getDocs(query(collection(db, `artifacts/${appId}/users/${userId}/workouts`)));
+            const exercises = [...new Set(workoutSnapshot.docs.map(doc => doc.data().exercise))];
+            
+            if(exercises.length > 0) {
+                const exerciseGroup = document.createElement('optgroup');
+                exerciseGroup.label = "Exercises";
+                exercises.sort().forEach(ex => {
+                    const optionEl = document.createElement('option');
+                    optionEl.value = `exercise_${ex}`;
+                    optionEl.textContent = ex;
+                    exerciseGroup.appendChild(optionEl);
+                });
+                chartSelect.appendChild(exerciseGroup);
+            }
+            chartSelect.value = currentSelection;
         }
         
         async function handleChartSelection() {
-            // code to handle chart selection and draw chart
+            const selectedValue = chartSelect.value;
+            if (!selectedValue) {
+                if (progressChart) progressChart.destroy();
+                chartPlaceholder.classList.remove('hidden');
+                return;
+            }
+
+            chartPlaceholder.classList.add('hidden');
+            const [type, key] = selectedValue.split('_');
+            let data, labels, labelText, collectionName, dataKey;
+
+            if (type === 'measurement') {
+                collectionName = 'measurements';
+                dataKey = key;
+                labelText = `${key.charAt(0).toUpperCase() + key.slice(1)} Progress`;
+            } else {
+                collectionName = 'workouts';
+                labelText = `${key} Progress (kg)`;
+            }
+            
+            const q = type === 'exercise' 
+                ? query(collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`), where('exercise', '==', key))
+                : query(collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`));
+
+            const snapshot = await getDocs(q);
+            
+            const sortedData = snapshot.docs
+                .map(doc => doc.data())
+                .filter(d => {
+                    if (type === 'measurement') return d[dataKey] != null;
+                    return d.weight != null || (Array.isArray(d.weights) && d.weights.length > 0);
+                })
+                .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            labels = sortedData.map(d => d.date);
+            if (type === 'measurement') {
+                data = sortedData.map(d => d[dataKey]);
+            } else {
+                data = sortedData.map(d => {
+                    if (Array.isArray(d.weights) && d.weights.length > 0) return Math.max(...d.weights);
+                    return d.weight || 0;
+                });
+            }
+
+            drawChart(labels, data, labelText);
         }
 
         function drawChart(labels, data, label) {
-            // code to draw chart
+            if (progressChart) {
+                progressChart.destroy();
+            }
+            progressChart = new Chart(chartCanvas, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: label,
+                        data: data,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.2,
+                        pointBackgroundColor: '#3b82f6',
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: false } }
+                }
+            });
         }
         
         function showMessage(text, isError = false) {
-            // code to show message modal
+            const modal = document.getElementById('message-modal');
+            const textEl = document.getElementById('message-text');
+            textEl.textContent = text;
+            textEl.className = `text-center text-lg ${isError ? 'text-red-600' : 'text-green-600'}`;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 2000);
         }
 
         function showConfirm(text, onConfirm) {
