@@ -1,4 +1,5 @@
 Gym Workout Tracker
+
 A modern, responsive web application designed to help you track your gym workouts, monitor body measurements, and visualize your progress over time. This application is enhanced with an integrated AI Fitness Coach powered by Google's Gemini to provide intelligent insights into your fitness journey.
 
 ✨ Features
