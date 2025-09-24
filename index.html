@@ -58,7 +58,7 @@
         }
         .card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px R12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
         /* Custom scrollbar for chat */
         .custom-scrollbar::-webkit-scrollbar {
@@ -181,6 +181,14 @@
                                  <div>
                                     <label for="stomach-size" class="block text-sm font-medium text-slate-600">Stomach (cm)</label>
                                     <input type="number" step="0.1" id="stomach-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="85">
+                                </div>
+                                <div>
+                                    <label for="age" class="block text-sm font-medium text-slate-600">Age</label>
+                                    <input type="number" id="age" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="25">
+                                </div>
+                                <div>
+                                    <label for="height" class="block text-sm font-medium text-slate-600">Height (cm)</label>
+                                    <input type="number" step="0.1" id="height" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="180">
                                 </div>
                             </div>
                              <div>
@@ -544,6 +552,7 @@
             3. Identify any potential plateaus or exercises that haven't progressed.
             4. Based on the data, provide one key suggestion for their next week of training.
             5. Briefly comment on their body measurement changes if available.
+            6. If height and weight data are available, calculate the Body Mass Index (BMI) and comment on it.
 
             Keep the tone positive and motivating. Format the output using markdown for readability.`;
             
@@ -661,7 +670,15 @@
             e.preventDefault();
             const date = measurementForm['measurement-date'].value;
             if (!date) { showMessage("Please select a date for measurements.", true); return; }
-            const data = { date, weight: parseFloat(measurementForm['body-weight'].value) || null, chest: parseFloat(measurementForm['chest-size'].value) || null, biceps: parseFloat(measurementForm['biceps-size'].value) || null, stomach: parseFloat(measurementForm['stomach-size'].value) || null };
+            const data = { 
+                date, 
+                weight: parseFloat(measurementForm['body-weight'].value) || null, 
+                chest: parseFloat(measurementForm['chest-size'].value) || null, 
+                biceps: parseFloat(measurementForm['biceps-size'].value) || null, 
+                stomach: parseFloat(measurementForm['stomach-size'].value) || null,
+                age: parseInt(measurementForm['age'].value) || null,
+                height: parseFloat(measurementForm['height'].value) || null
+            };
             if (!Object.values(data).some((v, i) => i > 0 && v !== null)) { showMessage("Please enter at least one measurement.", true); return; }
             try {
                 await setDoc(doc(db, `artifacts/${appId}/users/${userId}/measurements`, date), data, { merge: true });
