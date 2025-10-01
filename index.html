@@ -227,16 +227,40 @@
                                             <input type="number" step="0.1" id="body-weight" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="75.5">
                                         </div>
                                         <div>
-                                            <label for="chest-size" class="block text-sm font-medium text-slate-600">Chest (cm)</label>
-                                            <input type="number" step="0.1" id="chest-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="102">
+                                            <label for="bust-line" class="block text-sm font-medium text-slate-600">Bust Line (cm)</label>
+                                            <input type="number" step="0.1" id="bust-line" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="102">
+                                        </div>
+                                        <div>
+                                            <label for="waist-line" class="block text-sm font-medium text-slate-600">Waist Line (cm)</label>
+                                            <input type="number" step="0.1" id="waist-line" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="85">
+                                        </div>
+                                        <div>
+                                            <label for="hip-line" class="block text-sm font-medium text-slate-600">Hip Line (cm)</label>
+                                            <input type="number" step="0.1" id="hip-line" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="95">
                                         </div>
                                         <div>
                                             <label for="biceps-size" class="block text-sm font-medium text-slate-600">Biceps (cm)</label>
                                             <input type="number" step="0.1" id="biceps-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="38">
                                         </div>
-                                         <div>
-                                            <label for="stomach-size" class="block text-sm font-medium text-slate-600">Stomach (cm)</label>
-                                            <input type="number" step="0.1" id="stomach-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="85">
+                                        <div>
+                                            <label for="forearms-size" class="block text-sm font-medium text-slate-600">Forearms (cm)</label>
+                                            <input type="number" step="0.1" id="forearms-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="30">
+                                        </div>
+                                        <div>
+                                            <label for="thighs-size" class="block text-sm font-medium text-slate-600">Thighs (cm)</label>
+                                            <input type="number" step="0.1" id="thighs-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="60">
+                                        </div>
+                                        <div>
+                                            <label for="calves-size" class="block text-sm font-medium text-slate-600">Calves (cm)</label>
+                                            <input type="number" step="0.1" id="calves-size" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="40">
+                                        </div>
+                                        <div>
+                                            <label for="smm" class="block text-sm font-medium text-slate-600">SMM (kg)</label>
+                                            <input type="number" step="0.1" id="smm" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="35.5">
+                                        </div>
+                                        <div>
+                                            <label for="pbf" class="block text-sm font-medium text-slate-600">PBF (%)</label>
+                                            <input type="number" step="0.1" id="pbf" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="15.2">
                                         </div>
                                         <div>
                                             <label for="age" class="block text-sm font-medium text-slate-600">Age</label>
@@ -822,11 +846,12 @@
             DATA:
             ${data}
             ANALYSIS SHOULD INCLUDE:
-            1. Overall progress summary.
+            1. Overall progress summary on strength and exercises.
             2. 1-2 exercises with most improvement.
-            3. Potential plateaus.
-            4. One key suggestion for next week.
-            5. Comment on body measurements, including BMI if possible.
+            3. Potential plateaus in lifting.
+            4. A comment on body composition changes. Specifically mention Skeletal Muscle Mass (SMM) and Percentage of Body Fat (PBF) trends if the data is available.
+            5. A key suggestion for their next week of training based on all available data.
+            6. If height and weight data are available, calculate the Body Mass Index (BMI) and comment on it.
             Keep the tone positive. Format output using markdown.`;
             
             const response = await callGeminiAPI(prompt);
@@ -877,9 +902,15 @@
             const data = { 
                 date, 
                 weight: parseFloat(measurementForm['body-weight'].value) || null, 
-                chest: parseFloat(measurementForm['chest-size'].value) || null, 
+                bustLine: parseFloat(measurementForm['bust-line'].value) || null,
+                waistLine: parseFloat(measurementForm['waist-line'].value) || null,
+                hipLine: parseFloat(measurementForm['hip-line'].value) || null,
                 biceps: parseFloat(measurementForm['biceps-size'].value) || null, 
-                stomach: parseFloat(measurementForm['stomach-size'].value) || null,
+                forearms: parseFloat(measurementForm['forearms-size'].value) || null,
+                thighs: parseFloat(measurementForm['thighs-size'].value) || null,
+                calves: parseFloat(measurementForm['calves-size'].value) || null,
+                smm: parseFloat(measurementForm['smm'].value) || null,
+                pbf: parseFloat(measurementForm['pbf'].value) || null,
                 age: parseInt(measurementForm['age'].value) || null,
                 height: parseFloat(measurementForm['height'].value) || null
             };
@@ -944,8 +975,12 @@
             
             const measurementGroup = document.createElement('optgroup');
             measurementGroup.label = "Body Measurements";
-            ['Weight', 'Chest', 'Biceps', 'Stomach'].forEach(opt => {
-                measurementGroup.innerHTML += `<option value="measurement_${opt.toLowerCase()}">${opt}</option>`;
+            const measurements = ['Weight', 'Bust Line', 'Waist Line', 'Hip Line', 'Biceps', 'Forearms', 'Thighs', 'Calves', 'SMM', 'PBF'];
+            const measurementKeys = ['weight', 'bustLine', 'waistLine', 'hipLine', 'biceps', 'forearms', 'thighs', 'calves', 'smm', 'pbf'];
+
+            measurements.forEach((opt, index) => {
+                const valueKey = measurementKeys[index];
+                measurementGroup.innerHTML += `<option value="measurement_${valueKey}">${opt}</option>`;
             });
             chartSelect.appendChild(measurementGroup);
             
@@ -974,9 +1009,14 @@
             chartPlaceholder.classList.add('hidden');
             const [type, key] = selectedValue.split('_');
             const collectionName = type === 'measurement' ? 'measurements' : 'workouts';
-            const labelText = type === 'measurement'
-                ? `${key.charAt(0).toUpperCase() + key.slice(1)} Progress`
-                : `${key} Progress (kg)`;
+            
+            let labelText;
+            if (type === 'measurement') {
+                 const labelMap = { weight: 'Weight', bustLine: 'Bust Line', waistLine: 'Waist Line', hipLine: 'Hip Line', biceps: 'Biceps', forearms: 'Forearms', thighs: 'Thighs', calves: 'Calves', smm: 'SMM (kg)', pbf: 'PBF (%)' };
+                 labelText = `${labelMap[key] || key} Progress`;
+            } else {
+                 labelText = `${key} Progress (kg)`;
+            }
 
             const q = type === 'exercise' 
                 ? query(collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`), where('exercise', '==', key))
