@@ -1,21 +1,23 @@
 {
   "name": "Gym Workout Tracker",
   "short_name": "GymTracker",
-  "start_url": "/index.html",
+  "description": "A progressive web app to track your gym workouts and progress.",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f0f2f5",
   "theme_color": "#2563eb",
-  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "https://placehold.co/192x192/2563eb/ffffff?text=Gym",
+      "sizes": "192x192",
       "type": "image/png",
-      "sizes": "192x192"
+      "purpose": "any maskable"
     },
     {
       "src": "https://placehold.co/512x512/2563eb/ffffff?text=Gym",
+      "sizes": "512x512",
       "type": "image/png",
-      "sizes": "512x512"
+      "purpose": "any maskable"
     }
   ]
 }
