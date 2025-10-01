@@ -135,61 +135,63 @@
     <!-- Main App Container (hidden by default) -->
     <div id="app-container" class="hidden">
         <div class="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-            <header class="flex justify-between items-center mb-6">
+            <header class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
                 <div>
-                    <h1 class="text-4xl md:text-5xl font-bold text-slate-800">Gym Tracker</h1>
+                    <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800">Gym Tracker</h1>
                     <p id="user-email-display" class="mt-2 text-sm text-slate-500">Logged in as...</p>
                 </div>
-                <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg">
+                <button id="logout-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg w-full sm:w-auto">
                     Logout
                 </button>
             </header>
             
             <!-- Navigation Tabs -->
             <div class="mb-6 border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-                    <button id="tab-dashboard" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Dashboard</button>
-                    <button id="tab-log" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Log Workout</button>
-                    <button id="tab-running" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hidden">Log Run</button>
-                    <button id="tab-ai" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">AI Coach</button>
-                    <button id="tab-settings" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Settings</button>
-                </nav>
+                <div class="overflow-x-auto">
+                    <nav class="-mb-px flex space-x-6 sm:space-x-8" aria-label="Tabs">
+                        <button id="tab-dashboard" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Dashboard</button>
+                        <button id="tab-log" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Log Workout</button>
+                        <button id="tab-running" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hidden">Log Run</button>
+                        <button id="tab-ai" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">AI Coach</button>
+                        <button id="tab-settings" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Settings</button>
+                    </nav>
+                </div>
             </div>
             
             <main>
                 <!-- Dashboard View -->
                 <div id="view-dashboard" class="view">
-                     <h2 class="text-3xl font-bold mb-6 text-slate-800" id="welcome-message">Welcome!</h2>
-                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                     <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-slate-800" id="welcome-message">Welcome!</h2>
+                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
                         <!-- Streak Card -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                            <div class="text-6xl mb-2">🔥</div>
-                            <div class="text-5xl font-bold text-slate-800" id="streak-count">0</div>
-                            <div class="text-slate-500">Day Streak</div>
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                            <div class="text-5xl sm:text-6xl mb-2">🔥</div>
+                            <div class="text-4xl sm:text-5xl font-bold text-slate-800" id="streak-count">0</div>
+                            <div class="text-slate-500 text-sm sm:text-base">Day Streak</div>
                         </div>
                         <!-- Total Workouts Card -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                            <div class="text-6xl mb-2">💪</div>
-                            <div class="text-5xl font-bold text-slate-800" id="total-workouts">0</div>
-                            <div class="text-slate-500">Total Workouts</div>
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                            <div class="text-5xl sm:text-6xl mb-2">💪</div>
+                            <div class="text-4xl sm:text-5xl font-bold text-slate-800" id="total-workouts">0</div>
+                            <div class="text-slate-500 text-sm sm:text-base">Total Workouts</div>
                         </div>
                         <!-- Total Weight Card -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                            <div class="text-6xl mb-2">🏋️</div>
-                            <div class="text-4xl font-bold text-slate-800" id="total-weight">0 <span class="text-2xl font-medium">kg</span></div>
-                            <div class="text-slate-500">Total Weight Lifted</div>
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                            <div class="text-5xl sm:text-6xl mb-2">🏋️</div>
+                            <div class="text-3xl sm:text-4xl font-bold text-slate-800" id="total-weight">0 <span class="text-xl sm:text-2xl font-medium">kg</span></div>
+                            <div class="text-slate-500 text-sm sm:text-base">Total Weight</div>
                         </div>
                         <!-- Total Distance Card -->
-                        <div id="total-distance-card" class="bg-white p-6 rounded-xl shadow-sm flex-col items-center justify-center text-center hidden">
-                            <div class="text-6xl mb-2">🏃‍♂️</div>
-                            <div class="text-4xl font-bold text-slate-800" id="total-distance">0 <span class="text-2xl font-medium">km</span></div>
-                            <div class="text-slate-500">Total Distance Run</div>
+                        <div id="total-distance-card" class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex-col items-center justify-center text-center hidden">
+                            <div class="text-5xl sm:text-6xl mb-2">🏃‍♂️</div>
+                            <div class="text-3xl sm:text-4xl font-bold text-slate-800" id="total-distance">0 <span class="text-xl sm:text-2xl font-medium">km</span></div>
+                            <div class="text-slate-500 text-sm sm:text-base">Total Distance</div>
                         </div>
                         <!-- Achievements Card -->
-                        <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
-                            <div class="text-6xl mb-2">🏆</div>
-                            <div class="text-4xl font-bold text-slate-800" id="achievements-unlocked">0/0</div>
-                            <div class="text-slate-500">Achievements</div>
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                            <div class="text-5xl sm:text-6xl mb-2">🏆</div>
+                            <div class="text-3xl sm:text-4xl font-bold text-slate-800" id="achievements-unlocked">0/0</div>
+                            <div class="text-slate-500 text-sm sm:text-base">Achievements</div>
                              <button id="view-achievements-btn" class="mt-3 text-sm text-blue-600 hover:underline">View All</button>
                         </div>
                      </div>
@@ -238,7 +240,7 @@
                             <div id="measurements-card" class="card bg-white p-6 rounded-xl shadow-sm">
                                  <h2 class="text-xl font-bold mb-4 text-slate-800">Log Body Measurements</h2>
                                 <form id="measurement-form" class="space-y-4">
-                                    <div class="grid grid-cols-2 gap-4">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
                                             <label for="body-weight" class="block text-sm font-medium text-slate-600">Weight (kg)</label>
                                             <input type="number" step="0.1" id="body-weight" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="75.5">
@@ -334,7 +336,7 @@
                                     </div>
                                     <div>
                                         <label class="block text-sm font-medium text-slate-600">Duration</label>
-                                        <div class="flex items-center gap-2 mt-1">
+                                        <div class="grid grid-cols-3 gap-2 mt-1">
                                             <input type="number" id="run-duration-hr" class="w-full px-3 py-2 border rounded-md" placeholder="hr">
                                             <input type="number" id="run-duration-min" class="w-full px-3 py-2 border rounded-md" placeholder="min">
                                             <input type="number" id="run-duration-sec" class="w-full px-3 py-2 border rounded-md" placeholder="sec">
@@ -367,44 +369,39 @@
 
                 <!-- AI Coach View -->
                 <div id="view-ai" class="view hidden">
-                    <div class="card bg-white p-6 rounded-xl shadow-sm">
-                        <h2 class="text-2xl font-bold mb-4 text-slate-800">
-                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-pink-500">Gemini AI</span> Fitness Coach
-                        </h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Analysis Section -->
-                            <div>
-                                <h3 class="text-lg font-semibold mb-2">Overall Progress Analysis</h3>
-                                <button id="analyze-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300">
-                                    ✨ Analyze My Progress
-                                </button>
-                                <div id="analysis-result-container" class="mt-4 p-4 border rounded-lg bg-gray-50 h-96 overflow-y-auto custom-scrollbar">
-                                    <div id="analysis-placeholder" class="text-slate-400 flex items-center justify-center h-full">Click the button to get an AI-powered analysis of your progress.</div>
-                                    <div id="analysis-loading" class="hidden text-slate-500">
-                                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-purple-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                        </svg>
-                                        Analyzing data...
-                                    </div>
-                                    <div id="analysis-result" class="markdown-content"></div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Analysis Section -->
+                        <div class="card bg-white p-6 rounded-xl shadow-sm">
+                            <h3 class="text-lg font-semibold mb-2">Overall Progress Analysis</h3>
+                            <button id="analyze-btn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300">
+                                ✨ Analyze My Progress
+                            </button>
+                            <div id="analysis-result-container" class="mt-4 p-4 border rounded-lg bg-gray-50 h-96 overflow-y-auto custom-scrollbar">
+                                <div id="analysis-placeholder" class="text-slate-400 flex items-center justify-center h-full">Click the button to get an AI-powered analysis of your progress.</div>
+                                <div id="analysis-loading" class="hidden text-slate-500">
+                                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-purple-500 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    Analyzing data...
                                 </div>
+                                <div id="analysis-result" class="markdown-content"></div>
                             </div>
-                            <!-- Chat Section -->
-                            <div>
-                                 <h3 class="text-lg font-semibold mb-2">Chat with Your Data</h3>
-                                <div id="chat-container" class="border rounded-lg h-96 flex flex-col bg-gray-50">
-                                    <div id="chat-history" class="flex-grow p-4 overflow-y-auto space-y-4 custom-scrollbar">
-                                         <div class="text-center text-sm text-slate-400">Ask a question about your workouts, like "How is my bench press progressing?"</div>
-                                    </div>
-                                    <div id="chat-loading" class="p-4 border-t hidden">
-                                        <p class="text-sm text-slate-500">Gemini is thinking...</p>
-                                    </div>
-                                    <form id="chat-form" class="p-2 border-t flex gap-2 bg-white">
-                                        <input type="text" id="chat-input" class="flex-grow p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Ask about your progress...">
-                                        <button type="submit" class="bg-blue-600 text-white px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300">Send</button>
-                                    </form>
+                        </div>
+                        <!-- Chat Section -->
+                        <div class="card bg-white p-6 rounded-xl shadow-sm">
+                             <h3 class="text-lg font-semibold mb-2">Chat with Your Data</h3>
+                            <div id="chat-container" class="border rounded-lg h-96 flex flex-col bg-gray-50">
+                                <div id="chat-history" class="flex-grow p-4 overflow-y-auto space-y-4 custom-scrollbar">
+                                     <div class="text-center text-sm text-slate-400">Ask a question about your workouts, like "How is my bench press progressing?"</div>
                                 </div>
+                                <div id="chat-loading" class="p-4 border-t hidden">
+                                    <p class="text-sm text-slate-500">Gemini is thinking...</p>
+                                </div>
+                                <form id="chat-form" class="p-2 border-t flex gap-2 bg-white">
+                                    <input type="text" id="chat-input" class="flex-grow p-2 border rounded-md focus:ring-blue-500 focus:border-blue-500" placeholder="Ask about your progress...">
+                                    <button type="submit" class="bg-blue-600 text-white px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300">Send</button>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -1156,7 +1153,6 @@
                 });
                 chartSelect.appendChild(exerciseGroup);
             }
-
             chartSelect.value = currentSelection;
         }
         
@@ -1174,7 +1170,7 @@
             const collectionName = type === 'measurement' ? 'measurements' : 'workouts';
             
             let labelText;
-            const labelMap = { weight: 'Weight', bustLine: 'Bust Line', waistLine: 'Waist Line', hipLine: 'Hip Line', biceps: 'Biceps', forearms: 'Forearms', thighs: 'Thighs', calves: 'Calves', smm: 'SMM (kg)', pbf: 'PBF (%)'};
+            const labelMap = { weight: 'Weight', bustLine: 'Bust Line', waistLine: 'Waist Line', hipLine: 'Hip Line', biceps: 'Biceps', forearms: 'Forearms', thighs: 'Thighs', calves: 'Calves', smm: 'SMM (kg)', pbf: 'PBF (%)' };
             if (type === 'measurement') {
                  labelText = `${labelMap[key] || key} Progress`;
             } else {
