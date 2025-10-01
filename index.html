@@ -199,7 +199,8 @@
                                         <datalist id="workout-tags-list"></datalist>
                                     </div>
                                     <div>
-                                        <label for="exercise-select" class="block text-sm font-medium text-slate-600">Exercise Name</label>
+                                        <label for="exercise-search" class="block text-sm font-medium text-slate-600">Search or Select Exercise</label>
+                                        <input type="text" id="exercise-search" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="Type to search...">
                                         <select id="exercise-select" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></select>
                                         <input type="text" id="new-exercise-name" class="hidden mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="e.g., Deadlift">
                                         <button type="button" id="toggle-exercise-input-btn" class="mt-2 text-sm text-blue-600 hover:underline">Or, add a new exercise</button>
@@ -444,6 +445,7 @@
         let calendar;
         let progressChart;
         let isAddingNewExercise = false;
+        let allExercises = [];
         
         const appId = 'gym-tracker-default';
         let unsubscribes = [];
@@ -463,6 +465,7 @@
         const measurementForm = document.getElementById('measurement-form');
         const chartCanvas = document.getElementById('progress-chart');
         const editModal = document.getElementById('edit-modal');
+        const exerciseSearchInput = document.getElementById('exercise-search');
         const exerciseSelect = document.getElementById('exercise-select');
         const newExerciseNameInput = document.getElementById('new-exercise-name');
         const setsContainer = document.getElementById('sets-container');
@@ -579,6 +582,19 @@
             
             workoutForm.onsubmit = handleWorkoutSubmit;
             measurementForm.onsubmit = handleMeasurementSubmit;
+            
+            exerciseSearchInput.onkeyup = () => {
+                const searchTerm = exerciseSearchInput.value.toLowerCase();
+                const filteredExercises = allExercises.filter(ex => ex.toLowerCase().includes(searchTerm));
+                populateExerciseSelect(filteredExercises);
+            };
+
+            exerciseSelect.onchange = () => {
+                if (exerciseSelect.value) {
+                    exerciseSearchInput.value = exerciseSelect.value;
+                }
+            };
+            
             chartSelect.onchange = handleChartSelection;
             document.getElementById('close-modal-btn').onclick = () => editModal.classList.add('hidden');
             document.getElementById('update-workout-btn').onclick = handleUpdateWorkout;
@@ -702,6 +718,7 @@
                     await addDoc(collection(db, `artifacts/${appId}/users/${userId}/workouts`), { exercise, weights, date, tag });
                     showMessage("Workout added!", false, '💪');
                     workoutForm.reset();
+                    exerciseSearchInput.value = '';
                     setsContainer.innerHTML = '';
                     setsContainer.appendChild(createSetInput());
                     workoutForm['workout-date'].value = new Date().toISOString().split('T')[0];
@@ -711,21 +728,30 @@
         }
         
         function populateExerciseDropdownAndTags(workoutDocs) {
-            const exercises = [...new Set(workoutDocs.map(doc => doc.data().exercise))].sort();
+            allExercises = [...new Set(workoutDocs.map(doc => doc.data().exercise))].sort();
             const tags = [...new Set(workoutDocs.map(doc => doc.data().tag).filter(Boolean))].sort();
             
-            const currentEx = exerciseSelect.value;
-            exerciseSelect.innerHTML = '<option value="">Select an exercise</option>';
-            exercises.forEach(ex => {
-                exerciseSelect.innerHTML += `<option value="${ex}">${ex}</option>`;
-            });
-            exerciseSelect.value = currentEx;
+            populateExerciseSelect(allExercises);
             
             const tagList = document.getElementById('workout-tags-list');
             tagList.innerHTML = '';
             tags.forEach(tag => {
                 tagList.innerHTML += `<option value="${tag}"></option>`;
             });
+        }
+
+        function populateExerciseSelect(exercises) {
+            const currentSelection = exerciseSelect.value;
+            exerciseSelect.innerHTML = '<option value="">Select an exercise</option>';
+            exercises.forEach(ex => {
+                const optionEl = document.createElement('option');
+                optionEl.value = ex;
+                optionEl.textContent = ex;
+                exerciseSelect.appendChild(optionEl);
+            });
+            if (exercises.includes(currentSelection)) {
+                exerciseSelect.value = currentSelection;
+            }
         }
         
         function updateCalendar(workoutDocs) {
@@ -1074,11 +1100,13 @@
             const btn = document.getElementById('toggle-exercise-input-btn');
             if (isAddingNewExercise) {
                 exerciseSelect.classList.add('hidden');
+                exerciseSearchInput.classList.add('hidden');
                 newExerciseNameInput.classList.remove('hidden');
                 newExerciseNameInput.focus();
                 btn.textContent = 'Or, select an existing exercise';
             } else {
                 exerciseSelect.classList.remove('hidden');
+                exerciseSearchInput.classList.remove('hidden');
                 newExerciseNameInput.classList.add('hidden');
                 btn.textContent = 'Or, add a new exercise';
             }
