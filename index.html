@@ -87,6 +87,14 @@
             list-style-type: disc;
             padding-left: 1.5rem;
         }
+        /* Toggle switch style */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #3b82f6;
+        }
     </style>
 </head>
 <body class="antialiased text-slate-700">
@@ -141,8 +149,10 @@
             <div class="mb-6 border-b border-gray-200">
                 <nav class="-mb-px flex space-x-8" aria-label="Tabs">
                     <button id="tab-dashboard" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Dashboard</button>
-                    <button id="tab-log" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Log & View</button>
+                    <button id="tab-log" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Log Workout</button>
+                    <button id="tab-running" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hidden">Log Run</button>
                     <button id="tab-ai" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">AI Coach</button>
+                    <button id="tab-settings" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Settings</button>
                 </nav>
             </div>
             
@@ -150,7 +160,7 @@
                 <!-- Dashboard View -->
                 <div id="view-dashboard" class="view">
                      <h2 class="text-3xl font-bold mb-6 text-slate-800" id="welcome-message">Welcome!</h2>
-                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                         <!-- Streak Card -->
                         <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
                             <div class="text-6xl mb-2">🔥</div>
@@ -168,6 +178,12 @@
                             <div class="text-6xl mb-2">🏋️</div>
                             <div class="text-4xl font-bold text-slate-800" id="total-weight">0 <span class="text-2xl font-medium">kg</span></div>
                             <div class="text-slate-500">Total Weight Lifted</div>
+                        </div>
+                        <!-- Total Distance Card -->
+                        <div id="total-distance-card" class="bg-white p-6 rounded-xl shadow-sm flex-col items-center justify-center text-center hidden">
+                            <div class="text-6xl mb-2">🏃‍♂️</div>
+                            <div class="text-4xl font-bold text-slate-800" id="total-distance">0 <span class="text-2xl font-medium">km</span></div>
+                            <div class="text-slate-500">Total Distance Run</div>
                         </div>
                         <!-- Achievements Card -->
                         <div class="bg-white p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
@@ -301,6 +317,54 @@
                     </div>
                 </div>
                 
+                 <!-- Running View -->
+                <div id="view-running" class="view hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-1">
+                             <div class="card bg-white p-6 rounded-xl shadow-sm">
+                                <h2 class="text-xl font-bold mb-4 text-slate-800">Log a Run</h2>
+                                <form id="running-form" class="space-y-4">
+                                    <div>
+                                        <label for="run-date" class="block text-sm font-medium text-slate-600">Date</label>
+                                        <input type="date" id="run-date" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" required>
+                                    </div>
+                                    <div>
+                                        <label for="run-distance" class="block text-sm font-medium text-slate-600">Distance (km)</label>
+                                        <input type="number" step="0.1" id="run-distance" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="5.0">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-slate-600">Duration</label>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <input type="number" id="run-duration-hr" class="w-full px-3 py-2 border rounded-md" placeholder="hr">
+                                            <input type="number" id="run-duration-min" class="w-full px-3 py-2 border rounded-md" placeholder="min">
+                                            <input type="number" id="run-duration-sec" class="w-full px-3 py-2 border rounded-md" placeholder="sec">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-sky-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-sky-700">Log Run</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="lg:col-span-2">
+                             <div class="card bg-white p-6 rounded-xl shadow-sm">
+                                 <h2 class="text-xl font-bold mb-4 text-slate-800">Running Progress</h2>
+                                <div>
+                                    <label for="running-chart-select" class="block text-sm font-medium text-slate-600">Select metric to view</label>
+                                    <select id="running-chart-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 rounded-md">
+                                        <option value="distance">Distance (km)</option>
+                                        <option value="duration">Duration (min)</option>
+                                    </select>
+                                </div>
+                                <div class="mt-4 h-80 relative">
+                                    <canvas id="running-progress-chart"></canvas>
+                                    <div id="running-chart-placeholder" class="absolute inset-0 flex items-center justify-center text-slate-400">
+                                        <p>Log a run to see your progress.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- AI Coach View -->
                 <div id="view-ai" class="view hidden">
                     <div class="card bg-white p-6 rounded-xl shadow-sm">
@@ -341,6 +405,20 @@
                                         <button type="submit" class="bg-blue-600 text-white px-4 rounded-md hover:bg-blue-700 disabled:bg-blue-300">Send</button>
                                     </form>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings View -->
+                <div id="view-settings" class="view hidden">
+                    <div class="card bg-white p-6 rounded-xl shadow-sm max-w-md mx-auto">
+                        <h2 class="text-xl font-bold mb-4 text-slate-800">App Settings</h2>
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-700">Enable Running Log</span>
+                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                <input type="checkbox" name="toggle" id="enable-running-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                <label for="enable-running-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
                             </div>
                         </div>
                     </div>
@@ -444,6 +522,7 @@
         let userId = null;
         let calendar;
         let progressChart;
+        let runningProgressChart;
         let isAddingNewExercise = false;
         let allExercises = [];
         
@@ -456,6 +535,7 @@
         const loginForm = document.getElementById('login-form');
         const workoutForm = document.getElementById('workout-form');
         const chartSelect = document.getElementById('chart-select');
+        const runningChartSelect = document.getElementById('running-chart-select');
         const analyzeBtn = document.getElementById('analyze-btn');
         const analysisResult = document.getElementById('analysis-result');
         const chatForm = document.getElementById('chat-form');
@@ -464,6 +544,7 @@
         const logoutBtn = document.getElementById('logout-btn');
         const measurementForm = document.getElementById('measurement-form');
         const chartCanvas = document.getElementById('progress-chart');
+        const runningChartCanvas = document.getElementById('running-progress-chart');
         const editModal = document.getElementById('edit-modal');
         const exerciseSearchInput = document.getElementById('exercise-search');
         const exerciseSelect = document.getElementById('exercise-select');
@@ -513,15 +594,22 @@
             
             // Listen to all data changes
             const workoutQuery = query(collection(db, `artifacts/${appId}/users/${userId}/workouts`));
+            const runsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
             const measurementQuery = query(collection(db, `artifacts/${appId}/users/${userId}/measurements`));
             const achievementsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/achievements`));
+            const settingsDoc = doc(db, `artifacts/${appId}/users/${userId}/settings/appSettings`);
 
-            const unsubWorkouts = onSnapshot(workoutQuery, snapshot => {
-                const workoutDocs = snapshot.docs;
-                updateCalendar(workoutDocs);
-                updateDashboardAndAchievements();
-                populateExerciseDropdownAndTags(workoutDocs);
-                populateChartDropdown(workoutDocs); 
+            const unsubSettings = onSnapshot(settingsDoc, (docSnap) => {
+                applySettings(docSnap.data());
+            });
+
+            const unsubWorkouts = onSnapshot(workoutQuery, () => {
+                updateAllDynamicContent();
+            });
+
+            const unsubRuns = onSnapshot(runsQuery, () => {
+                updateAllDynamicContent();
+                handleRunningChartSelection();
             });
 
             const unsubMeasurements = onSnapshot(measurementQuery, () => {
@@ -529,9 +617,20 @@
             });
             const unsubAchievements = onSnapshot(achievementsQuery, snapshot => renderAchievementsPage(snapshot.docs));
             
-            unsubscribes.push(unsubWorkouts, unsubMeasurements, unsubAchievements);
+            unsubscribes.push(unsubWorkouts, unsubRuns, unsubMeasurements, unsubAchievements, unsubSettings);
             
             updateDashboardAndAchievements();
+        }
+
+        async function updateAllDynamicContent() {
+             const workoutQuery = query(collection(db, `artifacts/${appId}/users/${userId}/workouts`));
+             const runsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
+             const [workoutSnapshot, runsSnapshot] = await Promise.all([getDocs(workoutQuery), getDocs(runsQuery)]);
+
+             updateCalendar(workoutSnapshot.docs, runsSnapshot.docs);
+             populateExerciseDropdownAndTags(workoutSnapshot.docs);
+             populateChartDropdown(workoutSnapshot.docs);
+             updateDashboardAndAchievements();
         }
         
         async function updateDashboardAndAchievements() {
@@ -545,6 +644,7 @@
             unsubscribes = [];
             if (calendar) calendar.removeAllEvents();
             if (progressChart) progressChart.destroy();
+            if (runningProgressChart) runningProgressChart.destroy();
         }
         
         // --- Event Listeners Setup ---
@@ -573,6 +673,9 @@
                     if(viewId === 'view-log' && calendar) {
                         setTimeout(() => calendar.render(), 10);
                     }
+                    if(viewId === 'view-running') {
+                        handleRunningChartSelection();
+                    }
                 };
             });
             
@@ -582,6 +685,9 @@
             
             workoutForm.onsubmit = handleWorkoutSubmit;
             measurementForm.onsubmit = handleMeasurementSubmit;
+            document.getElementById('running-form').onsubmit = handleRunningSubmit;
+            
+            document.getElementById('enable-running-toggle').onchange = saveAppSettings;
             
             exerciseSearchInput.onkeyup = () => {
                 const searchTerm = exerciseSearchInput.value.toLowerCase();
@@ -596,6 +702,8 @@
             };
             
             chartSelect.onchange = handleChartSelection;
+            runningChartSelect.onchange = handleRunningChartSelection;
+
             document.getElementById('close-modal-btn').onclick = () => editModal.classList.add('hidden');
             document.getElementById('update-workout-btn').onclick = handleUpdateWorkout;
             document.getElementById('delete-workout-btn').onclick = handleDeleteWorkout;
@@ -610,19 +718,24 @@
         
         // --- Dashboard, Streak & Achievements Logic ---
         async function calculateUserStats() {
-            if (!userId) return { streak: 0, totalWorkouts: 0, totalWeightLifted: 0 };
+            if (!userId) return { streak: 0, totalWorkouts: 0, totalWeightLifted: 0, totalDistanceRun: 0 };
             
             const workoutQuery = query(collection(db, `artifacts/${appId}/users/${userId}/workouts`));
-            const snapshot = await getDocs(workoutQuery);
-            const workouts = snapshot.docs;
+            const runsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
+
+            const [workoutSnapshot, runsSnapshot] = await Promise.all([getDocs(workoutQuery), getDocs(runsQuery)]);
+            
+            const workouts = workoutSnapshot.docs;
+            const runs = runsSnapshot.docs;
 
             const totalWorkouts = workouts.length;
             const totalWeightLifted = workouts.reduce((sum, doc) => {
                 const weights = doc.data().weights || [];
                 return sum + weights.reduce((s, w) => s + w, 0);
             }, 0);
+            const totalDistanceRun = runs.reduce((sum, doc) => sum + (doc.data().distance || 0), 0);
 
-            if (workouts.length === 0) return { streak: 0, totalWorkouts, totalWeightLifted };
+            if (workouts.length === 0) return { streak: 0, totalWorkouts, totalWeightLifted, totalDistanceRun };
 
             const workoutDates = [...new Set(workouts.map(doc => doc.data().date))].sort().reverse();
             
@@ -633,7 +746,7 @@
             const diffFromToday = (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24);
 
             if (diffFromToday > 1 && !(currentDate.getDay() === 1 && diffFromToday === 2)) {
-                return { streak: 0, totalWorkouts, totalWeightLifted };
+                return { streak: 0, totalWorkouts, totalWeightLifted, totalDistanceRun };
             }
 
             let streak = 1;
@@ -653,13 +766,14 @@
                 iterDate = nextDate;
             }
             
-            return { streak, totalWorkouts, totalWeightLifted };
+            return { streak, totalWorkouts, totalWeightLifted, totalDistanceRun };
         }
 
         async function renderDashboard(stats) {
             document.getElementById('streak-count').textContent = stats.streak;
             document.getElementById('total-workouts').textContent = stats.totalWorkouts;
             document.getElementById('total-weight').textContent = Math.round(stats.totalWeightLifted).toLocaleString();
+            document.getElementById('total-distance').textContent = stats.totalDistanceRun.toFixed(1);
             
             const achievementsSnapshot = await getDocs(query(collection(db, `artifacts/${appId}/users/${userId}/achievements`)));
             document.getElementById('achievements-unlocked').textContent = `${achievementsSnapshot.size}/${achievements.length}`;
@@ -754,8 +868,8 @@
             }
         }
         
-        function updateCalendar(workoutDocs) {
-            const events = workoutDocs.map(doc => {
+        function updateCalendar(workoutDocs, runDocs) {
+            const workoutEvents = workoutDocs.map(doc => {
                 const data = doc.data();
                 const displayWeight = Array.isArray(data.weights) && data.weights.length > 0 ? Math.max(...data.weights) : data.weight || 0;
                 const titlePrefix = data.tag ? `<strong>${data.tag}:</strong> ` : '';
@@ -763,12 +877,24 @@
                     id: doc.id, 
                     title: `${data.exercise} - ${displayWeight} kg`,
                     start: data.date, 
-                    extendedProps: { ...data, titlePrefix }
+                    extendedProps: { ...data, titlePrefix, type: 'workout' }
                 };
             });
+            const runEvents = runDocs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    title: `🏃‍♂️ Run - ${data.distance} km`,
+                    start: data.date,
+                    extendedProps: { ...data, type: 'run' },
+                    backgroundColor: '#0ea5e9',
+                    borderColor: '#0ea5e9'
+                }
+            });
+
             if (calendar) {
                 calendar.removeAllEvents();
-                calendar.addEventSource(events);
+                calendar.addEventSource([...workoutEvents, ...runEvents]);
             }
         }
         
@@ -846,13 +972,19 @@
             if (!userId) return "No data available.";
             
             const workoutQuery = query(collection(db, `artifacts/${appId}/users/${userId}/workouts`));
+            const runsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
             const measurementQuery = query(collection(db, `artifacts/${appId}/users/${userId}/measurements`));
-            const [workoutSnapshot, measurementSnapshot] = await Promise.all([getDocs(workoutQuery), getDocs(measurementQuery)]);
+            const [workoutSnapshot, runsSnapshot, measurementSnapshot] = await Promise.all([getDocs(workoutQuery), getDocs(runsQuery), getDocs(measurementQuery)]);
 
             let dataString = "WORKOUT DATA:\n";
             workoutSnapshot.docs.map(d => d.data()).sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(w => {
                 const maxWeight = Array.isArray(w.weights) ? Math.max(...w.weights) : w.weight;
                 dataString += `- ${w.date}, ${w.tag ? `(${w.tag}) ` : ''}${w.exercise}: Max weight ${maxWeight} kg, Sets: ${w.weights ? w.weights.length : 1}\n`;
+            });
+            
+            dataString += "\nRUNNING DATA:\n";
+            runsSnapshot.docs.map(d => d.data()).sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(r => {
+                dataString += `- ${r.date}: Distance ${r.distance} km, Duration ${r.duration} min\n`;
             });
 
             dataString += "\nBODY MEASUREMENT DATA:\n";
@@ -872,9 +1004,9 @@
             DATA:
             ${data}
             ANALYSIS SHOULD INCLUDE:
-            1. Overall progress summary on strength and exercises.
+            1. Overall progress summary on strength, exercises, and running.
             2. 1-2 exercises with most improvement.
-            3. Potential plateaus in lifting.
+            3. Potential plateaus in lifting or running.
             4. A comment on body composition changes. Specifically mention Skeletal Muscle Mass (SMM) and Percentage of Body Fat (PBF) trends if the data is available.
             5. A key suggestion for their next week of training based on all available data.
             6. If height and weight data are available, calculate the Body Mass Index (BMI) and comment on it.
@@ -951,6 +1083,10 @@
 
         function handleEventClick(info) {
              const data = info.event.extendedProps;
+             if(data.type === 'run') {
+                alert(`Run on ${data.date}: ${data.distance} km in ${data.duration} minutes.`);
+                return;
+             }
             editModal.querySelector('#modal-title').textContent = `Edit: ${data.exercise}`;
             editModal.querySelector('#edit-doc-id').value = info.event.id;
             editModal.querySelector('#edit-workout-tag').value = data.tag || '';
@@ -1020,6 +1156,7 @@
                 });
                 chartSelect.appendChild(exerciseGroup);
             }
+
             chartSelect.value = currentSelection;
         }
         
@@ -1037,8 +1174,8 @@
             const collectionName = type === 'measurement' ? 'measurements' : 'workouts';
             
             let labelText;
+            const labelMap = { weight: 'Weight', bustLine: 'Bust Line', waistLine: 'Waist Line', hipLine: 'Hip Line', biceps: 'Biceps', forearms: 'Forearms', thighs: 'Thighs', calves: 'Calves', smm: 'SMM (kg)', pbf: 'PBF (%)'};
             if (type === 'measurement') {
-                 const labelMap = { weight: 'Weight', bustLine: 'Bust Line', waistLine: 'Waist Line', hipLine: 'Hip Line', biceps: 'Biceps', forearms: 'Forearms', thighs: 'Thighs', calves: 'Calves', smm: 'SMM (kg)', pbf: 'PBF (%)' };
                  labelText = `${labelMap[key] || key} Progress`;
             } else {
                  labelText = `${key} Progress (kg)`;
@@ -1072,6 +1209,37 @@
                 data: {
                     labels,
                     datasets: [{ label, data, borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', fill: true, tension: 0.2, pointBackgroundColor: '#3b82f6', pointRadius: 4, pointHoverRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
+            });
+        }
+        
+        async function handleRunningChartSelection() {
+            if(!userId) return;
+            const selectedValue = runningChartSelect.value;
+            const placeholder = document.getElementById('running-chart-placeholder');
+            
+            const q = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
+            const snapshot = await getDocs(q);
+            const runs = snapshot.docs.map(d => d.data()).sort((a,b) => new Date(a.date) - new Date(b.date));
+
+            if(runs.length === 0) {
+                placeholder.classList.remove('hidden');
+                if(runningProgressChart) runningProgressChart.destroy();
+                return;
+            }
+            placeholder.classList.add('hidden');
+
+            const labels = runs.map(r => r.date);
+            const data = runs.map(r => r[selectedValue]);
+            const label = selectedValue === 'distance' ? 'Distance (km)' : 'Duration (min)';
+
+            if(runningProgressChart) runningProgressChart.destroy();
+            runningProgressChart = new Chart(runningChartCanvas, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{label, data, borderColor: '#0ea5e9', backgroundColor: 'rgba(14, 165, 233, 0.1)', fill: true, tension: 0.2}]
                 },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false } } }
             });
@@ -1141,6 +1309,61 @@
             };
             yesBtn.addEventListener('click', yesHandler);
             noBtn.addEventListener('click', noHandler);
+        }
+        
+        async function handleRunningSubmit(e) {
+            e.preventDefault();
+            const form = document.getElementById('running-form');
+            const date = form['run-date'].value;
+            const distance = parseFloat(form['run-distance'].value);
+            const hr = parseInt(form['run-duration-hr'].value) || 0;
+            const min = parseInt(form['run-duration-min'].value) || 0;
+            const sec = parseInt(form['run-duration-sec'].value) || 0;
+            const duration = hr * 60 + min + sec / 60;
+
+            if(!date || !distance || duration <= 0) {
+                showMessage('Please fill out all fields for the run.', true, '❌');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/users/${userId}/runs`), { date, distance, duration });
+                showMessage("Run logged successfully!", false, '🏃‍♂️');
+                form.reset();
+            } catch (error) {
+                showMessage("Failed to log run.", true, '❌');
+            }
+        }
+
+        function applySettings(settings) {
+            const runningTab = document.getElementById('tab-running');
+            const distanceCard = document.getElementById('total-distance-card');
+            const toggle = document.getElementById('enable-running-toggle');
+            
+            const isEnabled = settings?.runningLogEnabled || false;
+            
+            if (isEnabled) {
+                runningTab.classList.remove('hidden');
+                distanceCard.classList.remove('hidden');
+                distanceCard.classList.add('flex');
+            } else {
+                runningTab.classList.add('hidden');
+                distanceCard.classList.add('hidden');
+                distanceCard.classList.remove('flex');
+            }
+            toggle.checked = isEnabled;
+        }
+
+        async function saveAppSettings() {
+            if (!userId) return;
+            const isEnabled = document.getElementById('enable-running-toggle').checked;
+            const settingsDocRef = doc(db, `artifacts/${appId}/users/${userId}/settings/appSettings`);
+            try {
+                await setDoc(settingsDocRef, { runningLogEnabled: isEnabled }, { merge: true });
+                showMessage("Settings saved!", false, '⚙️');
+            } catch (error) {
+                showMessage("Could not save settings.", true, '❌');
+            }
         }
 
     </script>
