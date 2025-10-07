@@ -175,11 +175,11 @@
                             <div class="text-4xl sm:text-5xl font-bold text-slate-800" id="total-workouts">0</div>
                             <div class="text-slate-500 text-sm sm:text-base">Total Workouts</div>
                         </div>
-                        <!-- Total Weight Card -->
+                        <!-- Total Volume Card -->
                         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
                             <div class="text-5xl sm:text-6xl mb-2">🏋️</div>
-                            <div class="text-3xl sm:text-4xl font-bold text-slate-800" id="total-weight">0 <span class="text-xl sm:text-2xl font-medium">kg</span></div>
-                            <div class="text-slate-500 text-sm sm:text-base">Total Weight</div>
+                            <div class="text-3xl sm:text-4xl font-bold text-slate-800" id="total-volume">0 <span class="text-xl sm:text-2xl font-medium">kg</span></div>
+                            <div class="text-slate-500 text-sm sm:text-base">Total Volume</div>
                         </div>
                         <!-- Total Distance Card -->
                         <div id="total-distance-card" class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex-col items-center justify-center text-center hidden">
@@ -224,8 +224,8 @@
                                         <button type="button" id="toggle-exercise-input-btn" class="mt-2 text-sm text-blue-600 hover:underline">Or, add a new exercise</button>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-slate-600">Sets & Weight (kg)</label>
-                                        <div id="sets-container" class="space-y-2 mt-1"></div>
+                                        <label class="block text-sm font-medium text-slate-600">Sets</label>
+                                        <div id="sets-container" class="space-y-3 mt-1"></div>
                                         <button type="button" id="add-set-btn" class="mt-2 text-sm text-blue-600 hover:underline">+ Add Set</button>
                                     </div>
                                     <div>
@@ -305,7 +305,8 @@
                             <div class="card bg-white p-6 rounded-xl shadow-sm">
                                  <h2 class="text-xl font-bold mb-4 text-slate-800">Progress Graph</h2>
                                 <div>
-                                    <label for="chart-select" class="block text-sm font-medium text-slate-600">Select data to view</label>
+                                    <label for="chart-search" class="block text-sm font-medium text-slate-600">Search Metric</label>
+                                    <input type="text" id="chart-search" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm" placeholder="Type to filter...">
                                     <select id="chart-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-slate-300 rounded-md"></select>
                                 </div>
                                 <div class="mt-4 h-80 relative">
@@ -438,7 +439,7 @@
     </div>
 
     <div id="edit-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+        <div class="relative top-10 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
             <div class="mt-3 text-center">
                 <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Edit Workout</h3>
                 <div class="mt-2 px-7 py-3">
@@ -453,8 +454,8 @@
                             <input type="text" id="edit-exercise-name" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-slate-300 rounded-md" readonly>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-600">Sets & Weight (kg)</label>
-                            <div id="edit-sets-container" class="space-y-2 mt-1"></div>
+                            <label class="block text-sm font-medium text-slate-600">Sets</label>
+                            <div id="edit-sets-container" class="space-y-3 mt-1"></div>
                             <button type="button" id="edit-add-set-btn" class="mt-2 text-sm text-blue-600 hover:underline focus:outline-none">+ Add Set</button>
                         </div>
                          <div>
@@ -471,6 +472,41 @@
             </div>
         </div>
     </div>
+
+     <div id="edit-run-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Edit Run</h3>
+                <div class="mt-2 px-7 py-3">
+                    <form id="edit-run-form" class="space-y-4 text-left">
+                        <input type="hidden" id="edit-run-doc-id">
+                        <div>
+                           <label for="edit-run-date" class="block text-sm font-medium text-slate-600">Date</label>
+                            <input type="date" id="edit-run-date" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md" required>
+                        </div>
+                         <div>
+                            <label for="edit-run-distance" class="block text-sm font-medium text-slate-600">Distance (km)</label>
+                            <input type="number" step="0.1" id="edit-run-distance" class="mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md" placeholder="5.0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600">Duration</label>
+                            <div class="grid grid-cols-3 gap-2 mt-1">
+                                <input type="number" id="edit-run-duration-hr" class="w-full px-3 py-2 border rounded-md" placeholder="hr">
+                                <input type="number" id="edit-run-duration-min" class="w-full px-3 py-2 border rounded-md" placeholder="min">
+                                <input type="number" id="edit-run-duration-sec" class="w-full px-3 py-2 border rounded-md" placeholder="sec">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="items-center px-4 py-3 gap-2 flex justify-end">
+                    <button id="delete-run-btn" class="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-auto hover:bg-red-600">Delete</button>
+                    <button id="update-run-btn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-auto hover:bg-blue-600">Save</button>
+                     <button id="close-run-modal-btn" class="px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-auto hover:bg-gray-300">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="message-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 items-center justify-center hidden z-50">
         <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-sm mx-auto flex items-center gap-4">
             <div id="message-icon" class="text-3xl"></div>
@@ -543,6 +579,8 @@
         const chartCanvas = document.getElementById('progress-chart');
         const runningChartCanvas = document.getElementById('running-progress-chart');
         const editModal = document.getElementById('edit-modal');
+        const editRunModal = document.getElementById('edit-run-modal');
+        const chartSearchInput = document.getElementById('chart-search');
         const exerciseSearchInput = document.getElementById('exercise-search');
         const exerciseSelect = document.getElementById('exercise-select');
         const newExerciseNameInput = document.getElementById('new-exercise-name');
@@ -560,8 +598,8 @@
             { id: 'streak_30', name: 'Habit Formed', description: 'Maintain a 30-day workout streak.', emoji: '🥇', condition: stats => stats.streak >= 30 },
             { id: 'total_workouts_10', name: 'Regular', description: 'Complete 10 workouts.', emoji: '💪', condition: stats => stats.totalWorkouts >= 10 },
             { id: 'total_workouts_50', name: 'Veteran', description: 'Complete 50 workouts.', emoji: '🔥', condition: stats => stats.totalWorkouts >= 50 },
-            { id: 'total_weight_10000', name: 'Heavy Lifter', description: 'Lift a total of 10,000 kg.', emoji: '🏋️', condition: stats => stats.totalWeightLifted >= 10000 },
-            { id: 'total_weight_100000', name: 'Titan', description: 'Lift a total of 100,000 kg.', emoji: '💥', condition: stats => stats.totalWeightLifted >= 100000 },
+            { id: 'total_volume_50000', name: 'Heavy Lifter', description: 'Lift a total of 50,000 kg volume.', emoji: '🏋️', condition: stats => stats.totalVolumeLifted >= 50000 },
+            { id: 'total_volume_250000', name: 'Titan', description: 'Lift a total of 250,000 kg volume.', emoji: '💥', condition: stats => stats.totalVolumeLifted >= 250000 },
         ];
         
         
@@ -698,12 +736,37 @@
                 }
             };
             
+            chartSearchInput.onkeyup = () => {
+                const searchTerm = chartSearchInput.value.toLowerCase();
+                const options = chartSelect.options;
+                for(let i = 0; i < options.length; i++) {
+                    const opt = options[i];
+                    const parent = opt.parentElement;
+                    if(opt.text.toLowerCase().includes(searchTerm) || opt.value === "") {
+                        opt.style.display = "";
+                    } else {
+                        opt.style.display = "none";
+                    }
+                }
+                const optgroups = chartSelect.getElementsByTagName('optgroup');
+                for(let i = 0; i < optgroups.length; i++) {
+                    const group = optgroups[i];
+                    const visibleOptions = Array.from(group.options).some(opt => opt.style.display !== "none");
+                    group.style.display = visibleOptions ? "" : "none";
+                }
+            };
+
             chartSelect.onchange = handleChartSelection;
             runningChartSelect.onchange = handleRunningChartSelection;
 
             document.getElementById('close-modal-btn').onclick = () => editModal.classList.add('hidden');
             document.getElementById('update-workout-btn').onclick = handleUpdateWorkout;
             document.getElementById('delete-workout-btn').onclick = handleDeleteWorkout;
+
+            document.getElementById('close-run-modal-btn').onclick = () => editRunModal.classList.add('hidden');
+            document.getElementById('update-run-btn').onclick = handleUpdateRun;
+            document.getElementById('delete-run-btn').onclick = handleDeleteRun;
+
             document.getElementById('toggle-exercise-input-btn').onclick = toggleExerciseInput;
             document.getElementById('add-set-btn').onclick = () => setsContainer.appendChild(createSetInput());
             document.getElementById('edit-add-set-btn').onclick = () => document.getElementById('edit-sets-container').appendChild(createSetInput());
@@ -715,7 +778,7 @@
         
         // --- Dashboard, Streak & Achievements Logic ---
         async function calculateUserStats() {
-            if (!userId) return { streak: 0, totalWorkouts: 0, totalWeightLifted: 0, totalDistanceRun: 0 };
+            if (!userId) return { streak: 0, totalWorkouts: 0, totalVolumeLifted: 0, totalDistanceRun: 0 };
             
             const workoutQuery = query(collection(db, `artifacts/${appId}/users/${userId}/workouts`));
             const runsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
@@ -726,13 +789,14 @@
             const runs = runsSnapshot.docs;
 
             const totalWorkouts = workouts.length;
-            const totalWeightLifted = workouts.reduce((sum, doc) => {
-                const weights = doc.data().weights || [];
-                return sum + weights.reduce((s, w) => s + w, 0);
+            const totalVolumeLifted = workouts.reduce((sum, doc) => {
+                const sets = doc.data().sets || [];
+                const workoutVolume = sets.reduce((s, set) => s + (set.weight * set.reps), 0);
+                return sum + workoutVolume;
             }, 0);
             const totalDistanceRun = runs.reduce((sum, doc) => sum + (doc.data().distance || 0), 0);
 
-            if (workouts.length === 0) return { streak: 0, totalWorkouts, totalWeightLifted, totalDistanceRun };
+            if (workouts.length === 0) return { streak: 0, totalWorkouts, totalVolumeLifted, totalDistanceRun };
 
             const workoutDates = [...new Set(workouts.map(doc => doc.data().date))].sort().reverse();
             
@@ -743,7 +807,7 @@
             const diffFromToday = (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24);
 
             if (diffFromToday > 1 && !(currentDate.getDay() === 1 && diffFromToday === 2)) {
-                return { streak: 0, totalWorkouts, totalWeightLifted, totalDistanceRun };
+                return { streak: 0, totalWorkouts, totalVolumeLifted, totalDistanceRun };
             }
 
             let streak = 1;
@@ -763,13 +827,13 @@
                 iterDate = nextDate;
             }
             
-            return { streak, totalWorkouts, totalWeightLifted, totalDistanceRun };
+            return { streak, totalWorkouts, totalVolumeLifted, totalDistanceRun };
         }
 
         async function renderDashboard(stats) {
             document.getElementById('streak-count').textContent = stats.streak;
             document.getElementById('total-workouts').textContent = stats.totalWorkouts;
-            document.getElementById('total-weight').textContent = Math.round(stats.totalWeightLifted).toLocaleString();
+            document.getElementById('total-volume').textContent = Math.round(stats.totalVolumeLifted).toLocaleString();
             document.getElementById('total-distance').textContent = stats.totalDistanceRun.toFixed(1);
             
             const achievementsSnapshot = await getDocs(query(collection(db, `artifacts/${appId}/users/${userId}/achievements`)));
@@ -821,12 +885,18 @@
             e.preventDefault();
             const tag = workoutForm['workout-tag'].value.trim() || null;
             const exercise = isAddingNewExercise ? newExerciseNameInput.value.trim() : exerciseSelect.value;
-            const weights = Array.from(setsContainer.querySelectorAll('.set-weight-input')).map(input => parseFloat(input.value)).filter(w => !isNaN(w) && w > 0);
+            
+            const sets = Array.from(setsContainer.querySelectorAll('.set-row')).map(row => {
+                const weight = parseFloat(row.querySelector('.set-weight-input').value) || 0;
+                const reps = parseInt(row.querySelector('.set-reps-input').value) || 0;
+                return { weight, reps };
+            }).filter(set => set.weight > 0 && set.reps > 0);
+
             const date = workoutForm['workout-date'].value;
 
-            if (exercise && weights.length > 0 && date) {
+            if (exercise && sets.length > 0 && date) {
                 try {
-                    await addDoc(collection(db, `artifacts/${appId}/users/${userId}/workouts`), { exercise, weights, date, tag });
+                    await addDoc(collection(db, `artifacts/${appId}/users/${userId}/workouts`), { exercise, sets, date, tag });
                     showMessage("Workout added!", false, '💪');
                     workoutForm.reset();
                     exerciseSearchInput.value = '';
@@ -835,7 +905,7 @@
                     workoutForm['workout-date'].value = new Date().toISOString().split('T')[0];
                     if (isAddingNewExercise) toggleExerciseInput();
                 } catch (error) { showMessage("Failed to add workout.", true, '❌'); }
-            } else { showMessage("Please fill all workout fields correctly.", true, '❌'); }
+            } else { showMessage("Please fill all fields correctly.", true, '❌'); }
         }
         
         function populateExerciseDropdownAndTags(workoutDocs) {
@@ -868,11 +938,13 @@
         function updateCalendar(workoutDocs, runDocs) {
             const workoutEvents = workoutDocs.map(doc => {
                 const data = doc.data();
-                const displayWeight = Array.isArray(data.weights) && data.weights.length > 0 ? Math.max(...data.weights) : data.weight || 0;
+                const maxWeight = data.sets && data.sets.length > 0
+                    ? Math.max(...data.sets.map(s => s.weight))
+                    : 0;
                 const titlePrefix = data.tag ? `<strong>${data.tag}:</strong> ` : '';
                 return { 
                     id: doc.id, 
-                    title: `${data.exercise} - ${displayWeight} kg`,
+                    title: `${data.exercise} - ${maxWeight} kg`,
                     start: data.date, 
                     extendedProps: { ...data, titlePrefix, type: 'workout' }
                 };
@@ -975,8 +1047,8 @@
 
             let dataString = "WORKOUT DATA:\n";
             workoutSnapshot.docs.map(d => d.data()).sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(w => {
-                const maxWeight = Array.isArray(w.weights) ? Math.max(...w.weights) : w.weight;
-                dataString += `- ${w.date}, ${w.tag ? `(${w.tag}) ` : ''}${w.exercise}: Max weight ${maxWeight} kg, Sets: ${w.weights ? w.weights.length : 1}\n`;
+                const setsString = (w.sets || []).map(s => `${s.weight}kg x ${s.reps} reps`).join(', ');
+                dataString += `- ${w.date}, ${w.tag ? `(${w.tag}) ` : ''}${w.exercise}: ${setsString}\n`;
             });
             
             dataString += "\nRUNNING DATA:\n";
@@ -1001,8 +1073,8 @@
             DATA:
             ${data}
             ANALYSIS SHOULD INCLUDE:
-            1. Overall progress summary on strength, exercises, and running.
-            2. 1-2 exercises with most improvement.
+            1. Overall progress summary on strength, exercises (including volume), and running.
+            2. 1-2 exercises with most improvement in weight or volume.
             3. Potential plateaus in lifting or running.
             4. A comment on body composition changes. Specifically mention Skeletal Muscle Mass (SMM) and Percentage of Body Fat (PBF) trends if the data is available.
             5. A key suggestion for their next week of training based on all available data.
@@ -1081,7 +1153,20 @@
         function handleEventClick(info) {
              const data = info.event.extendedProps;
              if(data.type === 'run') {
-                alert(`Run on ${data.date}: ${data.distance} km in ${data.duration} minutes.`);
+                document.getElementById('edit-run-doc-id').value = info.event.id;
+                document.getElementById('edit-run-date').value = data.date;
+                document.getElementById('edit-run-distance').value = data.distance;
+
+                const duration = data.duration || 0;
+                const hours = Math.floor(duration / 60);
+                const minutes = Math.floor(duration % 60);
+                const seconds = Math.round((duration * 60) % 60);
+
+                document.getElementById('edit-run-duration-hr').value = hours;
+                document.getElementById('edit-run-duration-min').value = minutes;
+                document.getElementById('edit-run-duration-sec').value = seconds;
+                
+                editRunModal.classList.remove('hidden');
                 return;
              }
             editModal.querySelector('#modal-title').textContent = `Edit: ${data.exercise}`;
@@ -1092,8 +1177,9 @@
 
             const editSetsContainer = document.getElementById('edit-sets-container');
             editSetsContainer.innerHTML = '';
-            if (Array.isArray(data.weights) && data.weights.length > 0) {
-                data.weights.forEach(weight => editSetsContainer.appendChild(createSetInput(weight)));
+            const setsToRender = data.sets || [];
+            if (setsToRender.length > 0) {
+                setsToRender.forEach(set => editSetsContainer.appendChild(createSetInput(set)));
             } else {
                 editSetsContainer.appendChild(createSetInput());
             }
@@ -1103,13 +1189,18 @@
         async function handleUpdateWorkout() {
             const docId = editModal.querySelector('#edit-doc-id').value;
             const tag = editModal.querySelector('#edit-workout-tag').value.trim() || null;
-            const weights = Array.from(document.getElementById('edit-sets-container').querySelectorAll('.set-weight-input')).map(input => parseFloat(input.value)).filter(w => !isNaN(w) && w > 0);
+            const sets = Array.from(document.getElementById('edit-sets-container').querySelectorAll('.set-row')).map(row => {
+                const weight = parseFloat(row.querySelector('.set-weight-input').value) || 0;
+                const reps = parseInt(row.querySelector('.set-reps-input').value) || 0;
+                return { weight, reps };
+            }).filter(set => set.weight > 0 && set.reps > 0);
+
             const date = editModal.querySelector('#edit-workout-date').value;
             
-            if (!docId || weights.length === 0 || !date) { showMessage("Invalid data.", true, '❌'); return; }
+            if (!docId || sets.length === 0 || !date) { showMessage("Invalid data.", true, '❌'); return; }
             
             try {
-                await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/workouts`, docId), { weights, date, tag });
+                await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/workouts`, docId), { sets, date, tag });
                 showMessage("Workout updated!", false, '✅');
                 editModal.classList.add('hidden');
             } catch (error) { showMessage("Failed to update workout.", true, '❌'); }
@@ -1174,7 +1265,7 @@
             if (type === 'measurement') {
                  labelText = `${labelMap[key] || key} Progress`;
             } else {
-                 labelText = `${key} Progress (kg)`;
+                 labelText = `${key} Progress (Max Weight kg)`;
             }
 
             const q = type === 'exercise' 
@@ -1185,14 +1276,14 @@
             
             const sortedData = snapshot.docs.map(doc => doc.data()).filter(d => {
                 if (type === 'measurement') return d[key] != null;
-                return d.weight != null || (Array.isArray(d.weights) && d.weights.length > 0);
+                return d.sets && d.sets.length > 0;
             }).sort((a, b) => new Date(a.date) - new Date(b.date));
 
             const labels = sortedData.map(d => d.date);
             const data = sortedData.map(d => {
                 if (type === 'measurement') return d[key];
-                if (Array.isArray(d.weights) && d.weights.length > 0) return Math.max(...d.weights);
-                return d.weight || 0;
+                if (d.sets && d.sets.length > 0) return Math.max(...d.sets.map(s => s.weight));
+                return 0;
             });
 
             drawChart(labels, data, labelText);
@@ -1242,18 +1333,27 @@
         }
         
         // --- UI Helpers & Modals ---
-        function createSetInput(weight = '') {
+        function createSetInput(set = { weight: '', reps: '15' }) {
             const setWrapper = document.createElement('div');
-            setWrapper.className = 'flex items-center gap-2';
+            setWrapper.className = 'set-row grid grid-cols-12 gap-2 items-center';
             setWrapper.innerHTML = `
-                <input type="number" step="0.5" class="set-weight-input mt-1 block w-full px-3 py-2 bg-white border border-slate-300 rounded-md shadow-sm placeholder-slate-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500" placeholder="e.g., 60" value="${weight}" required>
-                <button type="button" class="remove-set-btn text-red-500 hover:text-red-700 font-bold">✕</button>
+                <div class="col-span-5">
+                    <label class="text-xs text-slate-500">Weight (kg)</label>
+                    <input type="number" step="0.5" class="set-weight-input mt-1 block w-full px-2 py-1 border rounded-md" placeholder="e.g., 60" value="${set.weight}" required>
+                </div>
+                <div class="col-span-5">
+                    <label class="text-xs text-slate-500">Reps</label>
+                    <input type="number" class="set-reps-input mt-1 block w-full px-2 py-1 border rounded-md" placeholder="e.g., 12" value="${set.reps}" required>
+                </div>
+                <div class="col-span-2 text-right pt-5">
+                    <button type="button" class="remove-set-btn text-red-500 hover:text-red-700 font-bold">✕</button>
+                </div>
             `;
             setWrapper.querySelector('.remove-set-btn').onclick = () => {
                 if (setWrapper.parentElement.childElementCount > 1) {
                     setWrapper.remove();
                 } else {
-                    showMessage("You must have at least one set.", true, '⚠️');
+                    showMessage("You must log at least one set.", true, '⚠️');
                 }
             };
             return setWrapper;
@@ -1329,6 +1429,39 @@
             } catch (error) {
                 showMessage("Failed to log run.", true, '❌');
             }
+        }
+
+        async function handleUpdateRun() {
+            const docId = document.getElementById('edit-run-doc-id').value;
+            const form = document.getElementById('edit-run-form');
+            const date = form['edit-run-date'].value;
+            const distance = parseFloat(form['edit-run-distance'].value);
+            const hr = parseInt(form['edit-run-duration-hr'].value) || 0;
+            const min = parseInt(form['edit-run-duration-min'].value) || 0;
+            const sec = parseInt(form['edit-run-duration-sec'].value) || 0;
+            const duration = hr * 60 + min + sec / 60;
+
+            if(!docId || !date || !distance || duration <= 0) {
+                showMessage('Invalid data. Please check all fields.', true, '❌');
+                return;
+            }
+             try {
+                await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/runs`, docId), { date, distance, duration });
+                showMessage("Run updated!", false, '✅');
+                editRunModal.classList.add('hidden');
+            } catch (error) { showMessage("Failed to update run.", true, '❌'); }
+        }
+
+        async function handleDeleteRun() {
+            const docId = document.getElementById('edit-run-doc-id').value;
+            if (!docId) return;
+            showConfirm("Delete this run entry?", async () => {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/users/${userId}/runs`, docId));
+                    showMessage("Run deleted!", false, '🗑️');
+                    editRunModal.classList.add('hidden');
+                } catch (error) { showMessage("Delete failed.", true, '❌'); }
+            });
         }
 
         function applySettings(settings) {
