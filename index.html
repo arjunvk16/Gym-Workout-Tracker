@@ -162,12 +162,18 @@
                 <!-- Dashboard View -->
                 <div id="view-dashboard" class="view">
                      <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-slate-800" id="welcome-message">Welcome!</h2>
-                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
-                        <!-- Streak Card -->
+                     <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                        <!-- Workout Streak Card -->
                         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
                             <div class="text-5xl sm:text-6xl mb-2">🔥</div>
                             <div class="text-4xl sm:text-5xl font-bold text-slate-800" id="streak-count">0</div>
-                            <div class="text-slate-500 text-sm sm:text-base">Day Streak</div>
+                            <div class="text-slate-500 text-sm sm:text-base">Workout Streak</div>
+                        </div>
+                         <!-- Sugar Cut Streak Card -->
+                        <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
+                            <div class="text-5xl sm:text-6xl mb-2">🍃</div>
+                            <div class="text-4xl sm:text-5xl font-bold text-slate-800" id="sugar-streak-count">0</div>
+                            <div class="text-slate-500 text-sm sm:text-base">Sugar-Free Streak</div>
                         </div>
                         <!-- Total Workouts Card -->
                         <div class="bg-white p-4 sm:p-6 rounded-xl shadow-sm flex flex-col items-center justify-center text-center">
@@ -195,11 +201,17 @@
                              <button id="view-achievements-btn" class="mt-3 text-sm text-blue-600 hover:underline">View All</button>
                         </div>
                      </div>
-                     <div class="mt-8 text-center">
-                        <button id="start-workout-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg text-lg">
-                            Log Today's Workout
-                        </button>
-                     </div>
+
+                    <div class="mt-8 card bg-white p-6 rounded-xl shadow-sm max-w-lg mx-auto">
+                        <h3 class="text-xl font-bold text-slate-800 text-center mb-4">Daily Sugar Log</h3>
+                        <p class="text-center text-slate-500 mb-4">Did you stick to your sugar goal today?</p>
+                        <div id="sugar-log-buttons" class="flex justify-center gap-4">
+                            <button id="sugar-success-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-lg">Success</button>
+                            <button id="sugar-fail-btn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg">Failed</button>
+                        </div>
+                        <p id="sugar-log-message" class="text-center text-slate-500 mt-4 hidden"></p>
+                    </div>
+
                 </div>
 
                 <!-- Log & View Data View -->
@@ -412,11 +424,18 @@
                 <div id="view-settings" class="view hidden">
                     <div class="card bg-white p-6 rounded-xl shadow-sm max-w-md mx-auto">
                         <h2 class="text-xl font-bold mb-4 text-slate-800">App Settings</h2>
-                        <div class="flex items-center justify-between">
-                            <span class="text-gray-700">Enable Running Log</span>
-                            <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                <input type="checkbox" name="toggle" id="enable-running-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
-                                <label for="enable-running-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-gray-700">Enable Running Log</span>
+                                <div class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                    <input type="checkbox" name="toggle" id="enable-running-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"/>
+                                    <label for="enable-running-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                </div>
+                            </div>
+                             <div class="border-t pt-4">
+                                <h3 class="font-semibold text-gray-800 mb-2">Notifications</h3>
+                                <button id="enable-notifications-btn" class="w-full bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600">Enable Notifications</button>
+                                <button id="test-notification-btn" class="w-full mt-2 bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 hidden">Send Test Notification</button>
                             </div>
                         </div>
                     </div>
@@ -633,6 +652,7 @@
             const measurementQuery = query(collection(db, `artifacts/${appId}/users/${userId}/measurements`));
             const achievementsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/achievements`));
             const settingsDoc = doc(db, `artifacts/${appId}/users/${userId}/settings/appSettings`);
+            const sugarLogQuery = query(collection(db, `artifacts/${appId}/users/${userId}/sugarLog`));
 
             const unsubSettings = onSnapshot(settingsDoc, (docSnap) => {
                 applySettings(docSnap.data());
@@ -651,8 +671,9 @@
                 updateDashboardAndAchievements();
             });
             const unsubAchievements = onSnapshot(achievementsQuery, snapshot => renderAchievementsPage(snapshot.docs));
+            const unsubSugar = onSnapshot(sugarLogQuery, () => updateDashboardAndAchievements());
             
-            unsubscribes.push(unsubWorkouts, unsubRuns, unsubMeasurements, unsubAchievements, unsubSettings);
+            unsubscribes.push(unsubWorkouts, unsubRuns, unsubMeasurements, unsubAchievements, unsubSettings, unsubSugar);
             
             updateDashboardAndAchievements();
         }
@@ -672,6 +693,7 @@
             const stats = await calculateUserStats();
             renderDashboard(stats);
             checkAndUnlockAchievements(stats);
+            updateSugarLogUI();
         }
 
         function cleanupOnLogout() {
@@ -724,6 +746,12 @@
             
             document.getElementById('enable-running-toggle').onchange = saveAppSettings;
             
+            document.getElementById('sugar-success-btn').onclick = () => logSugarResult(true);
+            document.getElementById('sugar-fail-btn').onclick = () => logSugarResult(false);
+            
+            document.getElementById('enable-notifications-btn').onclick = enableNotifications;
+            document.getElementById('test-notification-btn').onclick = sendTestNotification;
+
             exerciseSearchInput.onkeyup = () => {
                 const searchTerm = exerciseSearchInput.value.toLowerCase();
                 const filteredExercises = allExercises.filter(ex => ex.toLowerCase().includes(searchTerm));
@@ -778,12 +806,13 @@
         
         // --- Dashboard, Streak & Achievements Logic ---
         async function calculateUserStats() {
-            if (!userId) return { streak: 0, totalWorkouts: 0, totalVolumeLifted: 0, totalDistanceRun: 0 };
+            if (!userId) return { streak: 0, sugarStreak: 0, totalWorkouts: 0, totalVolumeLifted: 0, totalDistanceRun: 0 };
             
             const workoutQuery = query(collection(db, `artifacts/${appId}/users/${userId}/workouts`));
             const runsQuery = query(collection(db, `artifacts/${appId}/users/${userId}/runs`));
+            const sugarLogQuery = query(collection(db, `artifacts/${appId}/users/${userId}/sugarLog`));
 
-            const [workoutSnapshot, runsSnapshot] = await Promise.all([getDocs(workoutQuery), getDocs(runsQuery)]);
+            const [workoutSnapshot, runsSnapshot, sugarLogSnapshot] = await Promise.all([getDocs(workoutQuery), getDocs(runsQuery), getDocs(sugarLogSnapshot)]);
             
             const workouts = workoutSnapshot.docs;
             const runs = runsSnapshot.docs;
@@ -795,49 +824,106 @@
                 return sum + workoutVolume;
             }, 0);
             const totalDistanceRun = runs.reduce((sum, doc) => sum + (doc.data().distance || 0), 0);
-
-            if (workouts.length === 0) return { streak: 0, totalWorkouts, totalVolumeLifted, totalDistanceRun };
-
-            const workoutDates = [...new Set(workouts.map(doc => doc.data().date))].sort().reverse();
             
-            let currentDate = new Date();
-            currentDate.setHours(0, 0, 0, 0);
-            
-            const lastWorkoutDate = new Date(workoutDates[0] + "T00:00:00");
-            const diffFromToday = (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24);
+            // Workout Streak
+            let streak = 0;
+            if (workouts.length > 0) {
+                const workoutDates = [...new Set(workouts.map(doc => doc.data().date))].sort().reverse();
+                let currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0);
+                const lastWorkoutDate = new Date(workoutDates[0] + "T00:00:00");
+                const diffFromToday = (currentDate - lastWorkoutDate) / (1000 * 60 * 60 * 24);
 
-            if (diffFromToday > 1 && !(currentDate.getDay() === 1 && diffFromToday === 2)) {
-                return { streak: 0, totalWorkouts, totalVolumeLifted, totalDistanceRun };
-            }
-
-            let streak = 1;
-            let iterDate = new Date(lastWorkoutDate);
-
-            for (let i = 1; i < workoutDates.length; i++) {
-                const nextDate = new Date(workoutDates[i] + "T00:00:00");
-                const dayDiff = (iterDate - nextDate) / (1000 * 60 * 60 * 24);
-
-                if (dayDiff === 1) {
-                    streak++;
-                } else if (dayDiff === 2 && iterDate.getDay() === 1) { 
-                    streak++;
-                } else {
-                    break;
+                if (diffFromToday <= 1 || (currentDate.getDay() === 1 && diffFromToday === 2)) {
+                    streak = 1;
+                    let iterDate = new Date(lastWorkoutDate);
+                    for (let i = 1; i < workoutDates.length; i++) {
+                        const nextDate = new Date(workoutDates[i] + "T00:00:00");
+                        const dayDiff = (iterDate - nextDate) / (1000 * 60 * 60 * 24);
+                        if (dayDiff === 1 || (dayDiff === 2 && iterDate.getDay() === 1)) {
+                            streak++;
+                            iterDate = nextDate;
+                        } else {
+                            break;
+                        }
+                    }
                 }
-                iterDate = nextDate;
             }
             
-            return { streak, totalWorkouts, totalVolumeLifted, totalDistanceRun };
+            // Sugar Streak
+            let sugarStreak = 0;
+            if(sugarLogSnapshot.size > 0) {
+                const sugarLogs = sugarLogSnapshot.docs.map(d => d.data()).sort((a,b) => new Date(b.date) - new Date(a.date));
+                let currentDate = new Date();
+                currentDate.setHours(0,0,0,0);
+                const lastLogDate = new Date(sugarLogs[0].date);
+                lastLogDate.setHours(0,0,0,0);
+
+                const diffFromToday = (currentDate - lastLogDate) / (1000 * 60 * 60 * 24);
+
+                if(diffFromToday <= 1 && sugarLogs[0].success) {
+                    sugarStreak = 1;
+                    let iterDate = new Date(lastLogDate);
+                    for(let i=1; i < sugarLogs.length; i++) {
+                        if(!sugarLogs[i].success) break;
+                        const nextDate = new Date(sugarLogs[i].date);
+                        nextDate.setHours(0,0,0,0);
+                        const dayDiff = (iterDate - nextDate) / (1000 * 60 * 60 * 24);
+                        if(dayDiff === 1) {
+                            sugarStreak++;
+                            iterDate = nextDate;
+                        } else {
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            return { streak, sugarStreak, totalWorkouts, totalVolumeLifted, totalDistanceRun };
         }
 
         async function renderDashboard(stats) {
             document.getElementById('streak-count').textContent = stats.streak;
+            document.getElementById('sugar-streak-count').textContent = stats.sugarStreak;
             document.getElementById('total-workouts').textContent = stats.totalWorkouts;
             document.getElementById('total-volume').textContent = Math.round(stats.totalVolumeLifted).toLocaleString();
             document.getElementById('total-distance').textContent = stats.totalDistanceRun.toFixed(1);
             
             const achievementsSnapshot = await getDocs(query(collection(db, `artifacts/${appId}/users/${userId}/achievements`)));
             document.getElementById('achievements-unlocked').textContent = `${achievementsSnapshot.size}/${achievements.length}`;
+        }
+
+        async function updateSugarLogUI() {
+            if(!userId) return;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const logDocRef = doc(db, `artifacts/${appId}/users/${userId}/sugarLog`, todayStr);
+            const docSnap = await getDocs(query(collection(db, `artifacts/${appId}/users/${userId}/sugarLog`), where('date', '==', todayStr)));
+            
+            const buttonsDiv = document.getElementById('sugar-log-buttons');
+            const messageP = document.getElementById('sugar-log-message');
+
+            if (!docSnap.empty) {
+                const log = docSnap.docs[0].data();
+                buttonsDiv.classList.add('hidden');
+                messageP.classList.remove('hidden');
+                messageP.textContent = log.success ? "Great job today! You've logged a success." : "You logged a failure today. Tomorrow's a new day!";
+            } else {
+                buttonsDiv.classList.remove('hidden');
+                messageP.classList.add('hidden');
+            }
+        }
+
+        async function logSugarResult(success) {
+            if(!userId) return;
+            const todayStr = new Date().toISOString().split('T')[0];
+            const logDocRef = doc(db, `artifacts/${appId}/users/${userId}/sugarLog`, todayStr);
+            try {
+                await setDoc(logDocRef, { date: todayStr, success: success });
+                showMessage(success ? "Success logged! Keep it up!" : "Logged. Don't worry, get back on track tomorrow!", false, success ? '✅' : '👍');
+                updateSugarLogUI();
+            } catch (error) {
+                showMessage("Failed to log your result.", true, '❌');
+            }
         }
         
         async function checkAndUnlockAchievements(stats) {
@@ -890,7 +976,7 @@
                 const weight = parseFloat(row.querySelector('.set-weight-input').value) || 0;
                 const reps = parseInt(row.querySelector('.set-reps-input').value) || 0;
                 return { weight, reps };
-            }).filter(set => set.weight > 0 && set.reps > 0);
+            }).filter(set => set.weight >= 0 && set.reps > 0);
 
             const date = workoutForm['workout-date'].value;
 
@@ -1193,7 +1279,7 @@
                 const weight = parseFloat(row.querySelector('.set-weight-input').value) || 0;
                 const reps = parseInt(row.querySelector('.set-reps-input').value) || 0;
                 return { weight, reps };
-            }).filter(set => set.weight > 0 && set.reps > 0);
+            }).filter(set => set.weight >= 0 && set.reps > 0);
 
             const date = editModal.querySelector('#edit-workout-date').value;
             
@@ -1494,6 +1580,44 @@
                 showMessage("Could not save settings.", true, '❌');
             }
         }
+        
+        async function enableNotifications() {
+            if (!('Notification' in window)) {
+                showMessage("This browser does not support desktop notification", true, '🔔');
+                return;
+            }
+
+            if (Notification.permission === 'granted') {
+                showMessage("Notifications are already enabled!", false, '👍');
+                document.getElementById('enable-notifications-btn').classList.add('hidden');
+                document.getElementById('test-notification-btn').classList.remove('hidden');
+
+            } else if (Notification.permission !== 'denied') {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    showMessage("Notifications enabled!", false, '✅');
+                    document.getElementById('enable-notifications-btn').classList.add('hidden');
+                    document.getElementById('test-notification-btn').classList.remove('hidden');
+                } else {
+                    showMessage("Notification permission denied.", true, '❌');
+                }
+            } else {
+                showMessage("Notification permissions are denied. You'll need to enable them in your browser settings.", true, '⚙️');
+            }
+        }
+
+        function sendTestNotification() {
+             if (!('serviceWorker' in navigator)) {
+                return;
+            }
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification('Gym Tracker Reminder', {
+                    body: 'This is a test notification to make sure everything is working!',
+                    icon: 'https://placehold.co/192x192/2563eb/ffffff?text=Gym'
+                });
+            });
+        }
+
 
     </script>
 </body>
